@@ -1,0 +1,48 @@
+# ── Core API (Milestone 0) ──────────────────────────────
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+pydantic==2.9.2
+pydantic-settings==2.5.2
+python-dotenv==1.0.1
+python-multipart==0.0.9        # form/file uploads if the dashboard needs them
+
+# ── Database (Milestone 0 / 6) ──────────────────────────
+sqlalchemy==2.0.35
+alembic==1.13.2
+asyncpg==0.29.0
+pgvector==0.3.4                # vector similarity search inside Postgres (RAG memory)
+
+# ── Multi-agent orchestration (Milestone 1, 5) ──────────
+langchain==0.3.3
+langgraph==0.2.34
+langchain-community==0.3.2
+langchain-google-genai==2.0.1  # Gemini (free tier) LLM calls
+google-generativeai==0.8.3
+
+# ── Embeddings / RAG memory (Milestone 6) ───────────────
+langchain-huggingface==0.1.0
+sentence-transformers==3.1.1
+# pinecone-client==5.0.1       # uncomment if using Pinecone instead of pgvector
+
+# ── GitHub integration (Milestone 1, 4) ─────────────────
+PyGithub==2.4.0                # REST API: fetch logs, create branches/PRs
+GitPython==3.1.43              # local git ops for applying patches
+
+# ── Docker inspection (Milestone 2) ─────────────────────
+docker==7.1.0                  # Docker SDK for Python — image/container inspection
+
+# ── HTTP / webhooks ──────────────────────────────────────
+httpx==0.27.2
+requests==2.32.3
+
+# ── Dashboard (Milestone 7) ─────────────────────────────
+jinja2==3.1.4                  # server-rendered templates, if not using a separate React app
+
+# ── Testing (all milestones) ────────────────────────────
+pytest==8.3.3
+pytest-asyncio==0.24.0
+pytest-mock==3.14.0
+
+# ── Dev tooling ──────────────────────────────────────────
+black==24.8.0
+ruff==0.6.9

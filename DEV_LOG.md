@@ -26,7 +26,10 @@ Set up the project structure and development environment.
 - [ ] Created SCOPE.md
 - [ ] Created DEV_LOG.md
 - [ ] Created .gitignore
-
+- ✅ Created FastAPI application
+- ✅ Created root endpoint
+- ✅ Created health endpoint
+- ✅ Successfully ran Uvicorn server
 ---
 
 ## Problems Faced

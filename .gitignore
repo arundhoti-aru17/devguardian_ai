@@ -43,3 +43,20 @@ build/
 
 # Alembic
 alembic/versions/*.pyc
+
+# Environment files
+.env.*
+!.env.example
+
+# Python cache
+*.egg
+
+# Mypy
+.mypy_cache/
+
+# Ruff
+.ruff_cache/
+
+# Temporary files
+*.tmp
+*.bak
