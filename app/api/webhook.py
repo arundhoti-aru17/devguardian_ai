@@ -16,10 +16,7 @@ async def github_webhook(
 
     # Read the JSON payload sent by GitHub
     payload = await request.json()
-    logger.info(f"Event received: [{x_github_event}]")
     if x_github_event == "push":
-        logger.info("🚀 ENTERED PUSH BLOC")
-        logger.info(f"GitHub Event: {x_github_event}")
         print("🚀 ENTERED PUSH BLOCK")
         repository = payload.get("repository", {}).get("name", "Unknown")
         branch = payload.get("ref", "Unknown")
