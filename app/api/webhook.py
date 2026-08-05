@@ -10,6 +10,8 @@ async def github_webhook(
     request: Request,
     x_github_event: str = Header(default="Unknown"),
 ):
+    raise Exception("🔥 TEST EXCEPTION")
+
     # Read the JSON payload sent by GitHub
     payload = await request.json()
     if x_github_event == "push":
