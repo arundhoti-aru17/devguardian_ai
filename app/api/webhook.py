@@ -1,6 +1,9 @@
 from fastapi import APIRouter, Request, Header
 from app.db.session import SessionLocal
 from app.db.models import Incident
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -13,7 +16,10 @@ async def github_webhook(
 
     # Read the JSON payload sent by GitHub
     payload = await request.json()
+    logger.info(f"Event received: [{x_github_event}]")
     if x_github_event == "push":
+        logger.info("🚀 ENTERED PUSH BLOCK")
+        logger.info(f"GitHub Event: {x_github_event}")
         print("🚀 ENTERED PUSH BLOCK")
         repository = payload.get("repository", {}).get("name", "Unknown")
         branch = payload.get("ref", "Unknown")
