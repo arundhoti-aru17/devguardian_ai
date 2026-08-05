@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     SYNC_DATABASE_URL: str = ""
 
     GITHUB_TOKEN: str = ""
+    GITHUB_OWNER: str = ""          # 👈 Add this
     GITHUB_WEBHOOK_SECRET: str = ""
 
     GOOGLE_API_KEY: str = ""
