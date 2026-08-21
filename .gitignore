@@ -36,3 +36,8 @@ node_modules/
 
 # Temporary
 *.tmp
+devguardian-docker-demo/
+devguardian-k8s-demo/
+devguardian-demo-target/
+devguardian-ai/tests/
+.msg
