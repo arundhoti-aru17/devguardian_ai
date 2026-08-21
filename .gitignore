@@ -1,0 +1,38 @@
+# Environment files (NEVER commit - contains secrets)
+.env
+.devguardian-ai/.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+env/
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+
+# Logs & Traces
+devguardian-ai/workflow_logs/
+devguardian-ai/github_run_logs/
+*.log
+
+# Docker
+postgres_data/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+/dist
+
+# Output files
+*.zip
+
+# Temporary
+*.tmp

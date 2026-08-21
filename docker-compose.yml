@@ -1,0 +1,73 @@
+# ==========================================================
+# DevGuardian AI — Full Stack Docker Compose
+# ==========================================================
+# Start with: docker-compose up -d
+# View logs with: docker-compose logs -f
+# Stop with: docker-compose down
+# ==========================================================
+
+version: "3.9"
+
+services:
+  # ── Postgres with pgvector ──────────────────────────────────
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: devguardian-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: devguardian
+      POSTGRES_PASSWORD: devguardian
+      POSTGRES_DB: devguardian
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U devguardian"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── FastAPI Backend ─────────────────────────────────────────
+  api:
+    build:
+      context: ./devguardian-ai
+      dockerfile: Dockerfile
+    container_name: devguardian-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+asyncpg://devguardian:devguardian@postgres:5432/devguardian
+      SYNC_DATABASE_URL: postgresql://devguardian:devguardian@postgres:5432/devguardian
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+      GITHUB_OWNER: ${GITHUB_OWNER}
+      GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY}
+      LOG_LEVEL: INFO
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./devguardian-ai:/app
+
+  # ── Frontend (Vite React) ───────────────────────────────────
+  frontend:
+    image: node:20-alpine
+    container_name: devguardian-frontend
+    restart: unless-stopped
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host"
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_URL: http://localhost:8000
+    depends_on:
+      api:
+        condition: service_healthy
+    volumes:
+      - ./devguardian-frontend:/app:ro
+      - devguardian-frontend-node_modules:/app/node_modules
+
+volumes:
+  postgres_data:
