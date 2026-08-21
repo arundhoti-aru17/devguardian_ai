@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: devguardian-ai-backend
+    runtime: python
+    rootDir: devguardian-ai
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: LLM_API_KEY
+        sync: false
+      - key: TARGET_REPO
+        sync: false
+    plan: free

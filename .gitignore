@@ -60,3 +60,10 @@ alembic/versions/*.pyc
 # Temporary files
 *.tmp
 *.bak
+tests/
+
+github_run_logs/
+github_run_logs.zip
+workflow_logs/
+workflow_logs.zip
+github_dependency_failure.txt
