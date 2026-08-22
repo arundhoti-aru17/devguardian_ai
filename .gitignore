@@ -37,4 +37,8 @@ tests/
 
 # Coverage
 .coverage
-htmlcov/
+htmlcov/devguardian-demo-target/
+devguardian-docker-demo/
+devguardian-k8s-demo/
+tests/
+.msg
