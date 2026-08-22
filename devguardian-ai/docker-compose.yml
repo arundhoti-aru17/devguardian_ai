@@ -1,0 +1,29 @@
+services:
+
+  postgres:
+    image: pgvector/pgvector:pg16
+
+    container_name: devguardian-postgres
+
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: devguardian
+      POSTGRES_PASSWORD: devguardian
+      POSTGRES_DB: devguardian
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U devguardian"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+
+  postgres_data:

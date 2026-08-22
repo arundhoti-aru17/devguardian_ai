@@ -1,0 +1,69 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual Environments
+.venv/
+venv/
+env/
+
+# Conda
+.env
+
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Logs
+*.log
+
+# SQLite
+*.db
+
+# Pytest
+.pytest_cache/
+
+# Coverage
+.coverage
+htmlcov/
+
+# Build
+dist/
+build/
+*.egg-info/
+
+# Alembic
+alembic/versions/*.pyc
+
+# Environment files
+.env.*
+!.env.example
+
+# Python cache
+*.egg
+
+# Mypy
+.mypy_cache/
+
+# Ruff
+.ruff_cache/
+
+# Temporary files
+*.tmp
+*.bak
+tests/
+
+github_run_logs/
+github_run_logs.zip
+workflow_logs/
+workflow_logs.zip
+github_dependency_failure.txt
