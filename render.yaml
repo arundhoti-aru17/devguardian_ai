@@ -16,6 +16,8 @@ services:
         sync: false
       - key: DATABASE_URL
         sync: false
+      - key: SYNC_DATABASE_URL
+        sync: false
       - key: LOG_LEVEL
         value: INFO
     plan: free
