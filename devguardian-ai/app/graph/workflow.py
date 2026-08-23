@@ -973,7 +973,7 @@ builder.add_edge(
 # =========================================================
 
 connection_pool = ConnectionPool(
-    conninfo=settings.SYNC_DATABASE_URL,
+    conninfo=settings.SYNC_DATABASE_URL.replace("postgresql+psycopg://", "postgresql://"),
     max_size=20,
     kwargs={
         "autocommit": True,
