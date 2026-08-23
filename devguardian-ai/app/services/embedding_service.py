@@ -1,4 +1,6 @@
-from sentence_transformers import SentenceTransformer
+from google import genai
+from google.genai import types
+from app.core.config import settings
 
 
 class EmbeddingService:
@@ -6,20 +8,25 @@ class EmbeddingService:
     Generates vector embeddings for DevGuardian incidents.
     """
 
+    EMBEDDING_MODEL = "text-embedding-004"
+    EMBEDDING_DIM = 384
+
     def __init__(self):
-        self.model = SentenceTransformer("all-MiniLM-L6-v2")
+        self.client = genai.Client(api_key=settings.GOOGLE_API_KEY)
 
     def generate_embedding(self, text: str) -> list[float]:
         """
         Convert text into a 384-dimensional embedding.
         """
-
         if not text or not text.strip():
             raise ValueError("Cannot generate embedding from empty text.")
 
-        embedding = self.model.encode(
-            text,
-            normalize_embeddings=True,
+        result = self.client.models.embed_content(
+            model=self.EMBEDDING_MODEL,
+            contents=text,
+            config=types.EmbedContentConfig(
+                output_dimensionality=self.EMBEDDING_DIM,
+            ),
         )
 
-        return embedding.tolist()
+        return result.embeddings[0].values
