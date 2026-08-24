@@ -63,7 +63,7 @@ async def github_webhook(
     # =====================================================
     # 1. READ GITHUB PAYLOAD
     # =====================================================
-
+    raw_body = await request.body()   # bytes, only used for signature verification
     payload = await request.json()
 
     logger.info("GitHub Webhook Received")
@@ -82,7 +82,7 @@ async def github_webhook(
             if algorithm == "sha256":
                 mac = hmac.new(
                     settings.GITHUB_WEBHOOK_SECRET.encode(),
-                    payload,
+                    raw_body,
                     hashlib.sha256,
                 ).hexdigest()
                 if not hmac.compare_digest(mac, received_sig):
