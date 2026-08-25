@@ -101,11 +101,12 @@ Workflow: {incident.workflow or ""}
 
         Only incidents whose cosine distance is less than or
         equal to similarity_threshold are considered similar.
-        """
 
-        # -----------------------------------------------------
-        # Generate embedding for the current incident
-        # -----------------------------------------------------
+        Kept for backwards compatibility. Prefer
+        find_similar_incidents_with_scores when the caller needs
+        to display *how* similar a match is (e.g. in the API
+        response), since this method discards the distance value.
+        """
 
         query_embedding = (
             self.generate_incident_embedding(
@@ -113,23 +114,9 @@ Workflow: {incident.workflow or ""}
             )
         )
 
-        # -----------------------------------------------------
-        # Calculate cosine distance
-        #
-        # Smaller distance = more similar
-        # -----------------------------------------------------
-
         distance = Incident.embedding.cosine_distance(
             query_embedding
         )
-
-        # -----------------------------------------------------
-        # Search PostgreSQL
-        #
-        # Exclude the current incident itself.
-        # Ignore incidents without embeddings.
-        # Ignore incidents that are too different.
-        # -----------------------------------------------------
 
         similar_incidents = (
             db.query(Incident)
@@ -144,3 +131,54 @@ Workflow: {incident.workflow or ""}
         )
 
         return similar_incidents
+
+    # =========================================================
+    # FIND SIMILAR INCIDENTS (WITH SIMILARITY SCORES)
+    # =========================================================
+
+    def find_similar_incidents_with_scores(
+        self,
+        db: Session,
+        incident: Incident,
+        limit: int = 5,
+        similarity_threshold: float = 0.30,
+    ) -> list[tuple[Incident, float]]:
+        """
+        Same matching logic as find_similar_incidents, but also
+        returns a 0-1 similarity score per match (1 = identical,
+        0 = completely dissimilar), so API responses can surface
+        "how confident" a memory match is instead of just which
+        incidents matched.
+
+        cosine_distance ranges roughly 0 (identical) to 2
+        (opposite). We convert it to a similarity score via
+        `1 - distance`, which is the standard cosine-similarity
+        relationship and stays intuitive (higher = more similar).
+        """
+
+        query_embedding = (
+            self.generate_incident_embedding(
+                incident
+            )
+        )
+
+        distance = Incident.embedding.cosine_distance(
+            query_embedding
+        )
+
+        rows = (
+            db.query(Incident, distance.label("distance"))
+            .filter(
+                Incident.id != incident.id,
+                Incident.embedding.isnot(None),
+                distance <= similarity_threshold,
+            )
+            .order_by(distance)
+            .limit(limit)
+            .all()
+        )
+
+        return [
+            (matched_incident, round(1 - matched_distance, 4))
+            for matched_incident, matched_distance in rows
+        ]

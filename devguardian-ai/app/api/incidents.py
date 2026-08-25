@@ -1,15 +1,17 @@
-from app.services.incident_memory import IncidentMemory
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.db.session import SessionLocal
 from app.db.models import Incident
+from app.services.incident_memory import IncidentMemory
 
 
 router = APIRouter(
     prefix="/incidents",
     tags=["Incidents"],
 )
+
+incident_memory = IncidentMemory()
 
 
 # =========================================================
@@ -122,6 +124,11 @@ def get_incidents(
 ):
     """
     Return recent DevGuardian incidents.
+
+    Note: similar_incidents is intentionally omitted here.
+    Computing embeddings/similarity for every row on every list
+    load would be expensive - it's only computed on the detail
+    endpoint below, where a single incident is being viewed.
     """
 
     incidents = (
@@ -153,6 +160,7 @@ def get_incidents(
                 "pr_number": incident.pr_number,
                 "pr_status": incident.pr_status,
                 "feedback": incident.feedback,
+                "target_file": incident.target_file,
             }
             for incident in incidents
         ],
@@ -169,7 +177,8 @@ def get_incident(
     db: Session = Depends(get_db),
 ):
     """
-    Return a single DevGuardian incident.
+    Return a single DevGuardian incident, including any
+    similar previous incidents found via embedding search.
     """
 
     incident = db.get(
@@ -182,6 +191,31 @@ def get_incident(
             status_code=404,
             detail=f"Incident {incident_id} not found.",
         )
+
+    # -----------------------------------------------------
+    # Only bother searching for matches if this incident
+    # actually has an embedding stored.
+    # -----------------------------------------------------
+
+    similar_incidents = []
+
+    if incident.embedding is not None:
+        matches = incident_memory.find_similar_incidents_with_scores(
+            db,
+            incident,
+            limit=1,
+        )
+
+        similar_incidents = [
+            {
+                "id": matched_incident.id,
+                "failure_type": matched_incident.failure_type,
+                "fix_description": matched_incident.fix_description,
+                "outcome": matched_incident.outcome,
+                "similarity": similarity,
+            }
+            for matched_incident, similarity in matches
+        ]
 
     return {
         "success": True,
@@ -204,86 +238,7 @@ def get_incident(
             "pr_number": incident.pr_number,
             "pr_status": incident.pr_status,
             "feedback": incident.feedback,
+            "target_file": incident.target_file,
+            "similar_incidents": similar_incidents,
         },
     }
-    
-# =========================================================
-# GET INCIDENT MEMORY
-# =========================================================
-
-@router.get("/{incident_id}/memory")
-def get_incident_memory(
-    incident_id: int,
-    db: Session = Depends(get_db),
-):
-    """
-    Return the most relevant previous incident from
-    DevGuardian's incident-memory system.
-    """
-
-    incident = db.get(
-        Incident,
-        incident_id,
-    )
-
-    if incident is None:
-        raise HTTPException(
-            status_code=404,
-            detail=f"Incident {incident_id} not found.",
-        )
-
-    # Memory search needs a diagnosis/failure type.
-    if not incident.failure_type:
-        return {
-            "success": True,
-            "memory": None,
-        }
-
-    try:
-        memory_service = IncidentMemory()
-
-        similar_incidents = (
-            memory_service.find_similar_incidents(
-                db=db,
-                incident=incident,
-                limit=5,
-            )
-        )
-
-        # Remove the current incident itself.
-        previous_incidents = [
-            item
-            for item in similar_incidents
-            if item.id != incident.id
-            and item.failure_type
-            and item.fix_description
-        ]
-
-        if not previous_incidents:
-            return {
-                "success": True,
-                "memory": None,
-            }
-
-        previous = previous_incidents[0]
-
-        return {
-            "success": True,
-            "memory": {
-                "incident_id": previous.id,
-                "failure_type": previous.failure_type,
-                "root_cause": previous.root_cause,
-                "fix_description": previous.fix_description,
-                "outcome": previous.outcome,
-            },
-        }
-
-    except Exception as exc:
-        print(
-            f"⚠️ Incident memory lookup failed: {exc}"
-        )
-
-        return {
-            "success": True,
-            "memory": None,
-        }

@@ -6,9 +6,16 @@ from app.core.config import settings
 class EmbeddingService:
     """
     Generates vector embeddings for DevGuardian incidents.
+
+    NOTE: text-embedding-004 was deprecated by Google on
+    January 14, 2026. gemini-embedding-001 is its replacement —
+    it defaults to 3072-dim output but supports truncation via
+    output_dimensionality (Matryoshka Representation Learning),
+    which is why we can still ask for 384 dims here and keep
+    the existing pgvector(384) column unchanged.
     """
 
-    EMBEDDING_MODEL = "text-embedding-004"
+    EMBEDDING_MODEL = "gemini-embedding-001"
     EMBEDDING_DIM = 384
 
     def __init__(self):

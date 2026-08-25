@@ -11,6 +11,9 @@ class Incident(Base):
 
     M6 adds incident-memory fields and a vector embedding
     so previous incidents can be retrieved using similarity search.
+
+    M7 adds target_file so the UI can show which file DevGuardian's
+    fix actually touched, instead of guessing.
     """
 
     __tablename__ = "incidents"
@@ -79,21 +82,6 @@ class Incident(Base):
         String,
         nullable=True,
     )
-    
-    pr_number = Column(
-        Integer,
-        nullable=True,
-    )
-
-    pr_status = Column(
-        String,
-        nullable=True,
-    )
-
-    feedback = Column(
-        String,
-        nullable=True,
-    )
 
     # =========================================================
     # M6 — Vector Embedding
@@ -119,6 +107,15 @@ class Incident(Base):
     )
 
     feedback = Column(
+        String,
+        nullable=True,
+    )
+
+    # =========================================================
+    # M7 — Fix Target
+    # =========================================================
+
+    target_file = Column(
         String,
         nullable=True,
     )
